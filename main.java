@@ -1,11 +1,11 @@
-mainimport java.io.File;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        CellManager cellManager = new CellManager();
+        cellManager cellManager = new cellManager();
         String filePath = "cells.csv"; // Assuming the CSV is in the current directory
 
         try (Scanner scanner = new Scanner(new File(filePath))) {
@@ -18,7 +18,7 @@ public class Main {
                 // Check if there are at least 12 columns
                 if (values.length >= 12) {
                     // Create the Cell object using the values
-                    Cell cell = new Cell(
+                    classCells cell = new classCells(
                         values[0].trim(), // oem
                         values[1].trim(), // model
                         values[2].trim(), // launchAnnounced

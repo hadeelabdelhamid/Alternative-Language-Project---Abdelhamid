@@ -3,20 +3,20 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class CellManager {
-    private List<Cell> cells = new ArrayList<>();
+public class cellManager {
+    private List<classCells> cells = new ArrayList<>();
 
-    public void addCell(Cell cell) {
+    public void addCell(classCells cell) {
         cells.add(cell);
     }
 
-    public void deleteCell(Cell cell) {
+    public void deleteCell(classCells cell) {
         cells.remove(cell);
     }
 
-    public Set<String> getUniqueValues(Function<Cell, String> extractor) {
+    public Set<String> getUniqueValues(Function<classCells, String> extractor) {
         Set<String> uniqueValues = new HashSet<>();
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             uniqueValues.add(extractor.apply(cell));
         }
         return uniqueValues;
@@ -25,7 +25,7 @@ public class CellManager {
     public double meanBodyWeight() {
         double sum = 0;
         int count = 0;
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             if (cell.getBodyWeight() != null) {
                 sum += cell.getBodyWeight();
                 count++;
@@ -36,7 +36,7 @@ public class CellManager {
 
     public String modeOEM() {
         Map<String, Integer> countMap = new HashMap<>();
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             String oem = cell.getOem();
             countMap.put(oem, countMap.getOrDefault(oem, 0) + 1);
         }
@@ -48,7 +48,7 @@ public class CellManager {
         Map<String, Double> averageWeightMap = new HashMap<>();
         Map<String, Integer> countMap = new HashMap<>();
 
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             String oem = cell.getOem();
             Float bodyWeight = cell.getBodyWeight();
 
@@ -69,9 +69,9 @@ public class CellManager {
     }
 
     // Task 2: Phones announced in one year and released in another
-    public List<Cell> phonesAnnouncedReleasedDifferentYears() {
-        List<Cell> result = new ArrayList<>();
-        for (Cell cell : cells) {
+    public List<classCells> phonesAnnouncedReleasedDifferentYears() {
+        List<classCells> result = new ArrayList<>();
+        for (classCells cell : cells) {
             if (cell.getLaunchAnnounced() != null && cell.getLaunchStatus() != null &&
                     !cell.getLaunchAnnounced().toString().equals(cell.getLaunchStatus())) {
                 result.add(cell);
@@ -83,7 +83,7 @@ public class CellManager {
     // Task 3: Phones with only one feature sensor
     public int phonesWithOneFeatureSensor() {
         int count = 0;
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             if (cell.getFeaturesSensors() != null && cell.getFeaturesSensors().split(",").length == 1) {
                 count++;
             }
@@ -97,7 +97,7 @@ public class CellManager {
         int maxCount = 0;
         int year = 0;
 
-        for (Cell cell : cells) {
+        for (classCells cell : cells) {
             if (cell.getLaunchAnnounced() != null && cell.getLaunchAnnounced() > 1999) {
                 int launchYear = cell.getLaunchAnnounced();
                 countMap.put(launchYear, countMap.getOrDefault(launchYear, 0) + 1);
@@ -118,7 +118,7 @@ public class CellManager {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 12) {
-                    Cell cell = new Cell(
+                    classCells cell = new classCells(
                             parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim(),
                             parts[4].trim(), parts[5].trim(), parts[6].trim(), parts[7].trim(),
                             parts[8].trim(), parts[9].trim(), parts[10].trim(), parts[11].trim()

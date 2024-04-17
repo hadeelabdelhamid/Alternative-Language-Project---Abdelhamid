@@ -1,4 +1,4 @@
-public class Cell {
+public class classCells {
     private String oem;
     private String model;
     private Integer launchAnnounced;
@@ -13,7 +13,7 @@ public class Cell {
     private String platformOs;
 
     // Constructor
-    public Cell(String oem, String model, String launchAnnounced, String launchStatus,
+    public classCells(String oem, String model, String launchAnnounced, String launchStatus,
                 String bodyDimensions, String bodyWeight, String bodySim, String displayType,
                 String displaySize, String displayResolution, String featuresSensors, String platformOs) {
         setOem(oem);

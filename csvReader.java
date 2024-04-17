@@ -1,7 +1,7 @@
-import java.io.;
-import java.util.;
+import java.io.*;
+import java.util.*;
 
-public class CSVReader {
+public class csvReader {
     public static void main(String[] args) {
         String filePath = "path/to/your/cells.csv";
         File file = new File(filePath);
@@ -13,7 +13,7 @@ public class CSVReader {
                 String line = scanner.nextLine();
                 String[] values = line.split(",");
                 if (values.length >= 12) {  // Ensure there are enough columns
-                    Cell cell = new Cell(
+                    classCells cell = new classCells(
                         values[0].trim(),  // oem
                         values[1].trim(),  // model
                         values[2].trim(),  // launch_announced
