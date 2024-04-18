@@ -1,133 +1,112 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class cellManager {
-    private List<classCells> cells = new ArrayList<>();
+class cellManager {
+    // Use a HashMap with a composite key (OEM + Model)
+    private Map<String, classCells> cellMap = new HashMap<>();
 
+    // Adds a cell to the manager with a unique key
     public void addCell(classCells cell) {
-        cells.add(cell);
+        String key = generateKey(cell);
+        cellMap.put(key, cell);
     }
 
+    // Deletes a cell from the manager by key
     public void deleteCell(classCells cell) {
-        cells.remove(cell);
+        String key = generateKey(cell);
+        cellMap.remove(key);
     }
 
+    // Helper method to generate a unique key for each cell
+    private String generateKey(classCells cell) {
+        return cell.getOem() + " " + cell.getModel();
+    }
+
+    // Gets unique values for a specific attribute of cells
     public Set<String> getUniqueValues(Function<classCells, String> extractor) {
-        Set<String> uniqueValues = new HashSet<>();
-        for (classCells cell : cells) {
-            uniqueValues.add(extractor.apply(cell));
-        }
-        return uniqueValues;
+        return cellMap.values().stream()
+                .map(extractor)
+                .collect(Collectors.toSet());
     }
 
+    // Calculates the mean body weight of all cells
     public double meanBodyWeight() {
-        double sum = 0;
-        int count = 0;
-        for (classCells cell : cells) {
-            if (cell.getBodyWeight() != null) {
-                sum += cell.getBodyWeight();
-                count++;
-            }
-        }
-        return count > 0 ? sum / count : 0;
+        return cellMap.values().stream()
+                .map(classCells::getBodyWeight)
+                .filter(Objects::nonNull)
+                .mapToDouble(Float::doubleValue)
+                .average()
+                .orElse(0.0);
     }
 
+    // Finds the most common OEM (mode of OEMs)
     public String modeOEM() {
-        Map<String, Integer> countMap = new HashMap<>();
-        for (classCells cell : cells) {
-            String oem = cell.getOem();
-            countMap.put(oem, countMap.getOrDefault(oem, 0) + 1);
-        }
-        return Collections.max(countMap.entrySet(), Map.Entry.comparingByValue()).getKey();
+        return cellMap.values().stream()
+                .collect(Collectors.groupingBy(classCells::getOem, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 
-    // Task 1: Highest average weight of the phone body
-    public String highestAverageBodyWeight() {
-        Map<String, Double> averageWeightMap = new HashMap<>();
-        Map<String, Integer> countMap = new HashMap<>();
-
-        for (classCells cell : cells) {
-            String oem = cell.getOem();
-            Float bodyWeight = cell.getBodyWeight();
-
-            if (oem != null && bodyWeight != null) {
-                averageWeightMap.put(oem, averageWeightMap.getOrDefault(oem, 0.0) + bodyWeight);
-                countMap.put(oem, countMap.getOrDefault(oem, 0) + 1);
+    public String highestAverageWeightOEM() {
+        Map<String, Double> totalWeights = new HashMap<>();
+        Map<String, Integer> counts = new HashMap<>();
+    
+        for (classCells cell : cellMap.values()) {
+            Float weight = cell.getBodyWeight();
+            if (weight != null) {
+                String oem = cell.getOem();
+                totalWeights.put(oem, totalWeights.getOrDefault(oem, 0.0) + weight);
+                counts.put(oem, counts.getOrDefault(oem, 0) + 1);
             }
         }
-
-        Map.Entry<String, Double> maxEntry = null;
-        for (Map.Entry<String, Double> entry : averageWeightMap.entrySet()) {
-            if (maxEntry == null || entry.getValue() / countMap.get(entry.getKey()) > maxEntry.getValue()) {
-                maxEntry = entry;
+    
+        String maxOem = null;
+        double maxAverage = 0;
+        for (Map.Entry<String, Double> entry : totalWeights.entrySet()) {
+            double averageWeight = entry.getValue() / counts.get(entry.getKey());
+            if (averageWeight > maxAverage) {
+                maxAverage = averageWeight;
+                maxOem = entry.getKey();
             }
         }
-
-        return maxEntry != null ? maxEntry.getKey() : null;
+    
+        return maxOem; // This should return the OEM name with the highest average weight
     }
 
-    // Task 2: Phones announced in one year and released in another
-    public List<classCells> phonesAnnouncedReleasedDifferentYears() {
-        List<classCells> result = new ArrayList<>();
-        for (classCells cell : cells) {
-            if (cell.getLaunchAnnounced() != null && cell.getLaunchStatus() != null &&
-                    !cell.getLaunchAnnounced().toString().equals(cell.getLaunchStatus())) {
-                result.add(cell);
-            }
-        }
-        return result;
+    // Finds phones announced in one year and released in another
+    public List<String> phonesWithDifferentAnnounceReleaseYears() {
+        return cellMap.values().stream()
+                .filter(cell -> {
+                    Integer launchYear = cell.getLaunchAnnounced();
+                    String launchStatus = cell.getLaunchStatus();
+                    return launchYear != null && launchStatus != null
+                            && launchStatus.matches(".*\\d{4}.*")
+                            && !launchStatus.contains(launchYear.toString());
+                })
+                .map(cell -> cell.getOem() + " " + cell.getModel())
+                .collect(Collectors.toList());
     }
 
-    // Task 3: Phones with only one feature sensor
-    public int phonesWithOneFeatureSensor() {
-        int count = 0;
-        for (classCells cell : cells) {
-            if (cell.getFeaturesSensors() != null && cell.getFeaturesSensors().split(",").length == 1) {
-                count++;
-            }
-        }
-        return count;
+    // Counts phones with only one feature sensor
+    public int countPhonesWithSingleFeatureSensor() {
+        return (int) cellMap.values().stream()
+                .filter(cell -> cell.getFeaturesSensors() != null
+                        && cell.getFeaturesSensors().split(",").length == 1)
+                .count();
     }
 
-    // Task 4: Year with the most phones launched after 1999
-    public int yearWithMostPhonesLaunchedAfter1999() {
-        Map<Integer, Integer> countMap = new HashMap<>();
-        int maxCount = 0;
-        int year = 0;
-
-        for (classCells cell : cells) {
-            if (cell.getLaunchAnnounced() != null && cell.getLaunchAnnounced() > 1999) {
-                int launchYear = cell.getLaunchAnnounced();
-                countMap.put(launchYear, countMap.getOrDefault(launchYear, 0) + 1);
-                if (countMap.get(launchYear) > maxCount) {
-                    maxCount = countMap.get(launchYear);
-                    year = launchYear;
-                }
-            }
-        }
-
-        return year;
-    }
-
-    // Method to read cells from CSV file and populate the list
-    public void readCellsFromCSV(String fileName) {
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 12) {
-                    classCells cell = new classCells(
-                            parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim(),
-                            parts[4].trim(), parts[5].trim(), parts[6].trim(), parts[7].trim(),
-                            parts[8].trim(), parts[9].trim(), parts[10].trim(), parts[11].trim()
-                    );
-                    cells.add(cell);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public int yearWithMostLaunchesPost1999() {
+        return cellMap.values().stream()
+                .map(classCells::getLaunchAnnounced) // This will extract the launch year
+                .filter(Objects::nonNull) // This will filter out null years
+                .filter(year -> year > 1999) // This will filter out years that are <= 1999
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())) // Group and count by year
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue()) // Find the year with the max count
+                .map(Map.Entry::getKey) // Extract the year from the entry
+                .orElse(0); // Return 0 if no year is found
     }
 }
