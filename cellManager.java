@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 
 class cellManager {
     // Use a HashMap with a composite key (OEM + Model)
-    private Map<String, classCells> cellMap = new HashMap<>();
+    private static Map<String, classCells> cellMap = new HashMap<>();
 
     // Adds a cell to the manager with a unique key
     public void addCell(classCells cell) {
@@ -31,7 +31,7 @@ class cellManager {
     }
 
     // Calculates the mean body weight of all cells
-    public double meanBodyWeight() {
+    public  double meanBodyWeight() {
         return cellMap.values().stream()
                 .map(classCells::getBodyWeight)
                 .filter(Objects::nonNull)
@@ -90,11 +90,12 @@ class cellManager {
                 .collect(Collectors.toList());
     }
 
-    // Counts phones with only one feature sensor
     public int countPhonesWithSingleFeatureSensor() {
         return (int) cellMap.values().stream()
-                .filter(cell -> cell.getFeaturesSensors() != null
-                        && cell.getFeaturesSensors().split(",").length == 1)
+                .filter(cell -> {
+                    String features = cell.getFeaturesSensors();
+                    return features != null && features.split(",").length == 1;
+                })
                 .count();
     }
 

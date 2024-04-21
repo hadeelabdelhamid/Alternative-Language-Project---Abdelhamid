@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.List;
 import java.util.Set;
 
-public class Main {
+public class main {
     public static void main(String[] args) {
         cellManager classCellsManager = new cellManager();
         String filePath = "cells.csv"; // Adjust the path as needed
@@ -33,7 +33,7 @@ public class Main {
                     );
                     classCellsManager.addCell(classCells);
                 } else {
-                    System.out.println("Skipped line due to missing information: " + line);
+                    System.out.println("Null " + line);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -65,4 +65,5 @@ public class Main {
         int mostLaunchesYear = classCellsManager.yearWithMostLaunchesPost1999();
         System.out.println("Year with the most phone launches after 1999: " + mostLaunchesYear);
     }
+    
 }
