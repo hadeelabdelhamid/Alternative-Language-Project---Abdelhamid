@@ -28,4 +28,4 @@ go through the cells.csv file and identify the different data types to then be p
 3. **Phones with Only One Feature Sensor:** [681]
 
 4. **Year with the Most Phone Launches Post-1999:** [2019]
-![Screenshot](path/to/your/screenshot.png)
+![Screenshot](Screenshot_1.png)
